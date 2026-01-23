@@ -247,57 +247,59 @@ const handleMouseUp = () => {
         </div>
       </footer>
 {/* Updated Zoom Modal with Click-to-Move */}
-{selectedImage && (
-  <div 
-    className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 overflow-hidden touch-none ${
-      scale > 1 ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-zoom-in'
-    }`}
-    onWheel={handleWheel}
-    onMouseDown={handleMouseDown}
-    onMouseMove={handleMouseMove}
-    onMouseUp={handleMouseUp}
-    onMouseLeave={handleMouseUp}
-    onClick={() => {
-      // ONLY close if the user didn't move the mouse (a clean click)
-      if (!hasMoved) {
-        setSelectedImage(null);
-        setScale(1);
-        setPosition({ x: 0, y: 0 });
-      }
-    }}
-  >
-    {/* Close Button - needs e.stopPropagation so it doesn't trigger the background onClick */}
-    <button 
-      className="fixed top-8 right-8 text-white/50 hover:text-white text-lg flex items-center gap-2 transition-all z-[110]"
-      onClick={(e) => {
-        e.stopPropagation();
-        setSelectedImage(null);
-        setScale(1);
-        setPosition({ x: 0, y: 0 });
-      }}
-    >
-      <span>Close</span>
-      <span className="text-3xl">×</span>
-    </button>
-
-    <div 
-      className="relative flex items-center justify-center pointer-events-none"
-      style={{ 
-        transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-        // Disable transition during dragging for instant response, enable for zoom
-        transition: isDragging ? 'none' : 'transform 0.15s ease-out',
-        transformOrigin: 'center' 
-      }}
-    >
-      <img 
-        src={selectedImage} 
-        className="max-w-[90vw] max-h-[85vh] object-contain rounded-sm shadow-2xl border border-white/5"
-        alt="Zine Preview"
-        draggable="false"
-      />
-    </div>
-  </div>
-)}
+		{selectedImage && (
+		  <div 
+		    className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 overflow-hidden touch-none 
+		      ${/* select-none prevents the blue highlight box */ ''}
+		      select-none 
+		      ${scale > 1 ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-zoom-in'}`}
+		    onWheel={handleWheel}
+		    onMouseDown={handleMouseDown}
+		    onMouseMove={handleMouseMove}
+		    onMouseUp={handleMouseUp}
+		    onMouseLeave={handleMouseUp}
+		    onClick={() => {
+		      if (!hasMoved) {
+		        setSelectedImage(null);
+		        setScale(1);
+		        setPosition({ x: 0, y: 0 });
+		      }
+		    }}
+		  >
+		    <button 
+		      className="fixed top-8 right-8 text-white/50 hover:text-white text-lg flex items-center gap-2 transition-all z-[110]"
+		      onClick={(e) => {
+		        e.stopPropagation();
+		        setSelectedImage(null);
+		        setScale(1);
+		        setPosition({ x: 0, y: 0 });
+		      }}
+		    >
+		      <span>Close</span>
+		      <span className="text-3xl">×</span>
+		    </button>
+		
+		    <div 
+		      className="relative flex items-center justify-center pointer-events-none"
+		      style={{ 
+		        transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+		        transition: isDragging ? 'none' : 'transform 0.15s ease-out',
+		        transformOrigin: 'center',
+		        // Double-down on preventing selection highlighting
+		        userSelect: 'none',
+		        WebkitUserSelect: 'none'
+		      }}
+		    >
+		      <img 
+		        src={selectedImage} 
+		        className="max-w-[90vw] max-h-[85vh] object-contain rounded-sm shadow-2xl border border-white/5"
+		        alt="Zine Preview"
+		        // draggable="false" prevents the "ghost image" from following the mouse
+		        draggable="false"
+		      />
+		    </div>
+		  </div>
+		)}
     </div>
   );
 }
