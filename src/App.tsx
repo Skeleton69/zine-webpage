@@ -18,21 +18,24 @@ function App() {
 		    };
 		  }, [selectedImage]);
 		
-	const handleWheel = (e: React.WheelEvent) => {
+const handleWheel = (e: React.WheelEvent) => {
   if (!selectedImage) return;
   
-  // 1. Calculate new scale
-  const delta = e.deltaY > 0 ? -0.2 : 0.2;
+  // 1. IMPORTANT: This stops the jumpy "scrolling" feel
+  // e.preventDefault() here might require a non-passive listener 
+  // but for now, let's focus on the math.
+
+  const delta = e.deltaY > 0 ? -0.25 : 0.25;
   const newScale = Math.min(Math.max(scale + delta, 1), 4);
   
-  // 2. Calculate where the mouse is relative to the container
-  const rect = e.currentTarget.getBoundingClientRect();
-  const x = ((e.clientX - rect.left) / rect.width) * 100;
-  const y = ((e.clientY - rect.top) / rect.height) * 100;
-  
-  // 3. Update states
-  setTransformOrigin(`${x}% ${y}%`);
-  setScale(newScale);
+  if (newScale !== scale) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    setTransformOrigin(`${x}% ${y}%`);
+    setScale(newScale);
+  }
 };
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white font-sans">
@@ -198,43 +201,47 @@ function App() {
         </div>
       </footer>
 {/* Updated Zoom Modal */}
-      {selectedImage && (
-        <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 overflow-hidden"
-          onWheel={handleWheel}
-          onClick={() => {
-            setSelectedImage(null);
-            setScale(1); // Reset scale when closing
-          }}
-        >
-          <div 
-            className="relative max-w-5xl w-full max-h-[90vh] flex items-center justify-center transition-transform duration-200 ease-out"
-            style={{ 
-              transform: `scale(${scale})`,
-              // This makes the zoom happen at your cursor position
-              transformOrigin: scale > 1 ? transformOrigin : 'center'
-            }}
-            onClick={(e) => e.stopPropagation()} // Prevents closing when clicking the image
-          >
-            <button 
-              className="fixed top-6 right-6 text-white/70 hover:text-white text-lg flex items-center gap-2 transition-colors z-[110]"
-              onClick={() => {
-                setSelectedImage(null);
-                setScale(1);
-              }}
-            >
-              <span>Close</span>
-              <span className="text-2xl">×</span>
-            </button>
+{selectedImage && (
+  <div 
+    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 overflow-hidden"
+    onWheel={handleWheel}
+    onClick={() => {
+      setSelectedImage(null);
+      setScale(1);
+    }}
+  >
+    <div 
+      className="relative max-w-5xl w-full max-h-[90vh] flex items-center justify-center"
+      style={{ 
+        transform: `scale(${scale})`,
+        transformOrigin: scale > 1 ? transformOrigin : 'center',
+        // ONLY transition the transform (scale), not the origin. 
+        // This stops the "teleporting" jump.
+        transition: 'transform 0.15s ease-out' 
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button 
+        className="fixed top-6 right-6 text-white/70 hover:text-white text-lg flex items-center gap-2 transition-colors z-[110]"
+        onClick={() => {
+          setSelectedImage(null);
+          setScale(1);
+        }}
+      >
+        <span>Close</span>
+        <span className="text-2xl">×</span>
+      </button>
 
-            <img 
-              src={selectedImage} 
-              className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl border border-white/10 pointer-events-none"
-              alt="Zoomed Preview"
-            />
-          </div>
-        </div>
-      )}
+      <img 
+        src={selectedImage} 
+        // removed pointer-events-none so we can eventually add dragging
+        className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl border border-white/10"
+        alt="Zoomed Preview"
+        draggable="false"
+      />
+    </div>
+  </div>
+)}
     </div>
   )
 }
