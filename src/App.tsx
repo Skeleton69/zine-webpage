@@ -1,6 +1,8 @@
 import React from 'react'
 import { BookOpen, Lightbulb, BrainCircuit, Users, Eye, Download } from 'lucide-react'
-
+import zine1 from './images/zine1.png';
+import zine2 from './images/zine2.png';
+import zine3 from './images/zine3.png';
 function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white font-sans">
@@ -115,21 +117,21 @@ function App() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border border-purple-500/20 shadow-lg shadow-purple-900/10 aspect-[4/5] flex items-center justify-center">
               <img
-                src="images/zine1.png"
+                src={zine1}
                 alt="Zine Preview 1"
                 className="w-full h-full object-cover rounded-xl"
               />
             </div>
             <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border border-blue-500/20 shadow-lg shadow-blue-900/10 aspect-[4/5] flex items-center justify-center">
               <img
-                src="images/zine2.png"
+                src={zine2}
                 alt="Zine Preview 2"
                 className="w-full h-full object-cover rounded-xl"
               />
             </div>
             <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border border-purple-500/20 shadow-lg shadow-purple-900/10 aspect-[4/5] flex items-center justify-center">
               <img
-                src="images/zine3.png"
+                src={zine3}
                 alt="Zine Preview 3"
                 className="w-full h-full object-cover rounded-xl"
               />
