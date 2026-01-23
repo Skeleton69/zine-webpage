@@ -6,8 +6,7 @@ import zine3 from './images/zine3.png';
 function App() {
 		const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
 		  const [scale, setScale] = React.useState(1);
-		
-		  // --- ADD SCROLL LOCK HOOK HERE ---
+			const [transformOrigin, setTransformOrigin] = React.useState('center');
 		  React.useEffect(() => {
 		    if (selectedImage) {
 		      document.body.style.overflow = 'hidden';
@@ -19,16 +18,22 @@ function App() {
 		    };
 		  }, [selectedImage]);
 		
-		  const handleWheel = (e: React.WheelEvent) => {
-		  if (!selectedImage) return;
-		  
-		  // This prevents the page from scrolling while you zoom
-		  e.preventDefault(); 
-		
-		  const delta = e.deltaY > 0 ? -0.2 : 0.2;
-		  const newScale = Math.min(Math.max(scale + delta, 1), 4);
-		  setScale(newScale);
-		};
+	const handleWheel = (e: React.WheelEvent) => {
+  if (!selectedImage) return;
+  
+  // 1. Calculate new scale
+  const delta = e.deltaY > 0 ? -0.2 : 0.2;
+  const newScale = Math.min(Math.max(scale + delta, 1), 4);
+  
+  // 2. Calculate where the mouse is relative to the container
+  const rect = e.currentTarget.getBoundingClientRect();
+  const x = ((e.clientX - rect.left) / rect.width) * 100;
+  const y = ((e.clientY - rect.top) / rect.height) * 100;
+  
+  // 3. Update states
+  setTransformOrigin(`${x}% ${y}%`);
+  setScale(newScale);
+};
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white font-sans">
       {/* Hero Section */}
@@ -204,7 +209,11 @@ function App() {
         >
           <div 
             className="relative max-w-5xl w-full max-h-[90vh] flex items-center justify-center transition-transform duration-200 ease-out"
-            style={{ transform: `scale(${scale})` }}
+            style={{ 
+              transform: `scale(${scale})`,
+              // This makes the zoom happen at your cursor position
+              transformOrigin: scale > 1 ? transformOrigin : 'center'
+            }}
             onClick={(e) => e.stopPropagation()} // Prevents closing when clicking the image
           >
             <button 
@@ -223,11 +232,6 @@ function App() {
               className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl border border-white/10 pointer-events-none"
               alt="Zoomed Preview"
             />
-            
-            {/* Zoom Level Indicator */}
-            <div className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-xs text-white/50 pointer-events-none">
-              Zoom: {Math.round(scale * 100)}% (Use Mouse Wheel)
-            </div>
           </div>
         </div>
       )}
