@@ -109,37 +109,35 @@ function App() {
           </div>
         </section>
 
-        {/* Visual Preview */}
-        <section className="mb-24">
-          <div className="flex items-center mb-8">
-            <Eye className="w-8 h-8 text-purple-400 mr-3" />
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-300 to-blue-200 bg-clip-text text-transparent">VISUAL PREVIEW</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border border-purple-500/20 shadow-lg shadow-purple-900/10 aspect-[4/5] flex items-center justify-center">
-              <img
-                src={zine1}
-                alt="Zine Preview 1"
-                className="w-full h-full object-cover rounded-xl"
-              />
-            </div>
-            <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border border-blue-500/20 shadow-lg shadow-blue-900/10 aspect-[4/5] flex items-center justify-center">
-              <img
-                src={zine2}
-                alt="Zine Preview 2"
-                className="w-full h-full object-cover rounded-xl"
-              />
-            </div>
-            <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border border-purple-500/20 shadow-lg shadow-purple-900/10 aspect-[4/5] flex items-center justify-center">
-              <img
-                src={zine3}
-                alt="Zine Preview 3"
-                className="w-full h-full object-cover rounded-xl"
-              />
-            </div>
-          </div>
-        
-        </section>
+		{/* Visual Preview */}
+		<section className="mb-24">
+		  <div className="flex items-center mb-8">
+		    <Eye className="w-8 h-8 text-purple-400 mr-3" />
+		    <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-300 to-blue-200 bg-clip-text text-transparent">VISUAL PREVIEW</h2>
+		  </div>
+		  
+		  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+		    {[
+		      { src: zine1, alt: "Zine Preview 1", color: "purple" },
+		      { src: zine2, alt: "Zine Preview 2", color: "blue" },
+		      { src: zine3, alt: "Zine Preview 3", color: "purple" }
+		    ].map((image, index) => (
+		      <div 
+		        key={index}
+		        onClick={() => setSelectedImage(image.src)}
+		        className={`cursor-zoom-in group bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl p-6 border ${
+		          image.color === 'purple' ? 'border-purple-500/20' : 'border-blue-500/20'
+		        } shadow-lg transition-all hover:scale-105 hover:border-purple-500/50 aspect-[4/5] flex items-center justify-center`}
+		      >
+		        <img
+		          src={image.src}
+		          alt={image.alt}
+		          className="w-full h-full object-cover rounded-xl"
+		        />
+		      </div>
+		    ))}
+		  </div>
+		</section>
 
         {/* Download Section */}
         <section className="text-center mb-24">
