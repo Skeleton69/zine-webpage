@@ -7,6 +7,7 @@ function App() {
 const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
 const [isDragging, setIsDragging] = React.useState(false);
 const [lastMousePos, setLastMousePos] = React.useState({ x: 0, y: 0 });
+const [hasMoved, setHasMoved] = React.useState(false);
   const [scale, setScale] = React.useState(1);
   const [position, setPosition] = React.useState({ x: 0, y: 0 });
 const handleMouseDown = (e: React.MouseEvent) => {
