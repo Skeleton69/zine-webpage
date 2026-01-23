@@ -5,6 +5,17 @@ import zine2 from './images/zine2.png';
 import zine3 from './images/zine3.png';
 function App() {
 	const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
+	const [scale, setScale] = React.useState(1);
+
+	const handleWheel = (e: React.WheelEvent) => {
+  // Prevent zoom if image isn't open
+  if (!selectedImage) return;
+  
+  // Calculate new scale
+  const delta = e.deltaY > 0 ? -0.2 : 0.2;
+  const newScale = Math.min(Math.max(scale + delta, 1), 4); // Limit zoom between 1x and 4x
+  setScale(newScale);
+};
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white font-sans">
       {/* Hero Section */}
@@ -168,25 +179,42 @@ function App() {
           </p>
         </div>
       </footer>
-		{/* INSERT MODAL HERE */}
+{/* Updated Zoom Modal */}
       {selectedImage && (
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 cursor-zoom-out backdrop-blur-sm"
-          onClick={() => setSelectedImage(null)}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 overflow-hidden"
+          onWheel={handleWheel}
+          onClick={() => {
+            setSelectedImage(null);
+            setScale(1); // Reset scale when closing
+          }}
         >
-          <div className="relative max-w-5xl w-full max-h-[90vh] flex items-center justify-center animate-in fade-in zoom-in duration-300">
+          <div 
+            className="relative max-w-5xl w-full max-h-[90vh] flex items-center justify-center transition-transform duration-200 ease-out"
+            style={{ transform: `scale(${scale})` }}
+            onClick={(e) => e.stopPropagation()} // Prevents closing when clicking the image
+          >
             <button 
-              className="absolute -top-12 right-0 text-white/70 hover:text-white text-lg flex items-center gap-2 transition-colors"
-              onClick={() => setSelectedImage(null)}
+              className="fixed top-6 right-6 text-white/70 hover:text-white text-lg flex items-center gap-2 transition-colors z-[110]"
+              onClick={() => {
+                setSelectedImage(null);
+                setScale(1);
+              }}
             >
               <span>Close</span>
               <span className="text-2xl">×</span>
             </button>
+
             <img 
               src={selectedImage} 
-              className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl border border-white/10"
+              className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl border border-white/10 pointer-events-none"
               alt="Zoomed Preview"
             />
+            
+            {/* Zoom Level Indicator */}
+            <div className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-xs text-white/50 pointer-events-none">
+              Zoom: {Math.round(scale * 100)}% (Use Mouse Wheel)
+            </div>
           </div>
         </div>
       )}
