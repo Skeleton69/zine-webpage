@@ -4,10 +4,37 @@ import zine1 from './images/zine1.png';
 import zine2 from './images/zine2.png';
 import zine3 from './images/zine3.png';
 function App() {
-		const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
+const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
+const [isDragging, setIsDragging] = React.useState(false);
+const [lastMousePos, setLastMousePos] = React.useState({ x: 0, y: 0 });
   const [scale, setScale] = React.useState(1);
   const [position, setPosition] = React.useState({ x: 0, y: 0 });
+const handleMouseDown = (e: React.MouseEvent) => {
+  if (scale > 1) {
+    setIsDragging(true);
+    setLastMousePos({ x: e.clientX, y: e.clientY });
+  }
+};
 
+const handleMouseMove = (e: React.MouseEvent) => {
+  if (!isDragging || scale <= 1) return;
+
+  // Calculate how far the mouse moved
+  const deltaX = e.clientX - lastMousePos.x;
+  const deltaY = e.clientY - lastMousePos.y;
+
+  // Update the image position
+  setPosition(prev => ({
+    x: prev.x + deltaX,
+    y: prev.y + deltaY
+  }));
+
+  setLastMousePos({ x: e.clientX, y: e.clientY });
+};
+
+const handleMouseUp = () => {
+  setIsDragging(false);
+};
   // --- SCROLL LOCK HOOK ---
   React.useEffect(() => {
     if (selectedImage) {
@@ -213,49 +240,57 @@ function App() {
           </p>
         </div>
       </footer>
-{/* --- REFRESHED ZOOM MODAL --- */}
-      {selectedImage && (
-        <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 overflow-hidden touch-none"
-          onWheel={handleWheel}
-          onClick={() => {
-            setSelectedImage(null);
-            setScale(1);
-            setPosition({ x: 0, y: 0 });
-          }}
-        >
-          {/* Close Button */}
-          <button 
-            className="fixed top-8 right-8 text-white/50 hover:text-white text-lg flex items-center gap-2 transition-all hover:scale-105 z-[110]"
-            onClick={() => {
-              setSelectedImage(null);
-              setScale(1);
-              setPosition({ x: 0, y: 0 });
-            }}
-          >
-            <span>Close</span>
-            <span className="text-3xl font-light">×</span>
-          </button>
+{/* Updated Zoom Modal with Click-to-Move */}
+{selectedImage && (
+  <div 
+    className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 overflow-hidden touch-none ${
+      scale > 1 ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-default'
+    }`}
+    onWheel={handleWheel}
+    onMouseDown={handleMouseDown}
+    onMouseMove={handleMouseMove}
+    onMouseUp={handleMouseUp}
+    onMouseLeave={handleMouseUp} // Stops dragging if mouse leaves window
+    onClick={() => {
+      if (!isDragging) { // Only close if they didn't just finish a drag
+        setSelectedImage(null);
+        setScale(1);
+        setPosition({ x: 0, y: 0 });
+      }
+    }}
+  >
+    {/* Close Button */}
+    <button 
+      className="fixed top-8 right-8 text-white/50 hover:text-white text-lg flex items-center gap-2 transition-all hover:scale-105 z-[110]"
+      onClick={(e) => {
+        e.stopPropagation(); // Stop background click from firing
+        setSelectedImage(null);
+        setScale(1);
+        setPosition({ x: 0, y: 0 });
+      }}
+    >
+      <span>Close</span>
+      <span className="text-3xl font-light">×</span>
+    </button>
 
-          {/* Image Container */}
-          <div 
-            className="relative flex items-center justify-center pointer-events-none"
-            style={{ 
-              // Combining translate and scale into one transform stops the jumping
-              transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-              transition: 'transform 0.1s ease-out',
-              transformOrigin: 'center' 
-            }}
-          >
-            <img 
-              src={selectedImage} 
-              className="max-w-[90vw] max-h-[85vh] object-contain rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/5"
-              alt="Zine Preview"
-              draggable="false"
-            />
-          </div>
-        </div>
-      )}
+    <div 
+      className="relative flex items-center justify-center pointer-events-none"
+      style={{ 
+        transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+        // Disable transition during dragging for instant response
+        transition: isDragging ? 'none' : 'transform 0.15s ease-out',
+        transformOrigin: 'center' 
+      }}
+    >
+      <img 
+        src={selectedImage} 
+        className="max-w-[90vw] max-h-[85vh] object-contain rounded-sm shadow-2xl border border-white/5"
+        alt="Zine Preview"
+        draggable="false"
+      />
+    </div>
+  </div>
+)}
     </div>
   );
 }
