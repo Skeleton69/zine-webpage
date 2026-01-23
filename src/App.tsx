@@ -161,7 +161,7 @@ const handleMouseUp = () => {
               I drew the zine by hand in order to also give the readers an idea of what my solution paper looks like when solving math (it's a lot
 							dirtier than what I wrote in the zine). Honestly, my greatest hurdle was what topic to pick for my example problem, I was originally 
 							leaning towards combinatorics (my favorite), but I switched to a number theory style question instead since it might look more
-							"mathy" to the readers. The design is quite generic I must say, I really tried to keep it centered on greek letters because
+							"mathy" to the readers. The design is quite generic I must say, I really tried to keep it centered on Greek letters because
 							those are used often in math, but I did sort of want to make it like a "welcome to the arena" kind of thing. Hence, I draw a colesseum 
 							to symbolize what I initially feel before taking a mathematical olympiad. As for coloring, I just went with a random color scheme with the available colors
 							in my workplace. Lastly, I utilized CamScanner to digitalize my zine, so the colors you see in the PDF or EPUB may not reflect on the
