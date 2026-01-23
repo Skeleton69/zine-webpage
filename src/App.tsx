@@ -5,38 +5,51 @@ import zine2 from './images/zine2.png';
 import zine3 from './images/zine3.png';
 function App() {
 		const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
-		  const [scale, setScale] = React.useState(1);
-			const [transformOrigin, setTransformOrigin] = React.useState('center');
-		  React.useEffect(() => {
-		    if (selectedImage) {
-		      document.body.style.overflow = 'hidden';
-		    } else {
-		      document.body.style.overflow = 'unset';
-		    }
-		    return () => {
-		      document.body.style.overflow = 'unset';
-		    };
-		  }, [selectedImage]);
-		
-const handleWheel = (e: React.WheelEvent) => {
-  if (!selectedImage) return;
-  
-  // 1. IMPORTANT: This stops the jumpy "scrolling" feel
-  // e.preventDefault() here might require a non-passive listener 
-  // but for now, let's focus on the math.
+  const [scale, setScale] = React.useState(1);
+  const [position, setPosition] = React.useState({ x: 0, y: 0 });
 
-  const delta = e.deltaY > 0 ? -0.25 : 0.25;
-  const newScale = Math.min(Math.max(scale + delta, 1), 4);
-  
-  if (newScale !== scale) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    
-    setTransformOrigin(`${x}% ${y}%`);
-    setScale(newScale);
-  }
-};
+  // --- SCROLL LOCK HOOK ---
+  React.useEffect(() => {
+    if (selectedImage) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedImage]);
+
+  // --- PROFESSIONAL ZOOM LOGIC ---
+  const handleWheel = (e: React.WheelEvent) => {
+    if (!selectedImage) return;
+
+    const zoomSpeed = 0.25;
+    const delta = e.deltaY > 0 ? -zoomSpeed : zoomSpeed;
+    const newScale = Math.min(Math.max(scale + delta, 1), 4);
+
+    if (newScale !== scale) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      
+      // Calculate mouse position relative to center of the container
+      const mouseX = e.clientX - rect.left - rect.width / 2;
+      const mouseY = e.clientY - rect.top - rect.height / 2;
+
+      // The math that prevents "teleporting": 
+      // It calculates how much to shift the X/Y to keep the cursor stationary
+      const ratio = (newScale - scale) / scale;
+      const newX = position.x - (mouseX - position.x) * ratio;
+      const newY = position.y - (mouseY - position.y) * ratio;
+
+      setScale(newScale);
+      // If we zoom back to 1x, snap everything back to center
+      if (newScale === 1) {
+        setPosition({ x: 0, y: 0 });
+      } else {
+        setPosition({ x: newX, y: newY });
+      }
+    }
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white font-sans">
       {/* Hero Section */}
@@ -200,50 +213,51 @@ const handleWheel = (e: React.WheelEvent) => {
           </p>
         </div>
       </footer>
-{/* Updated Zoom Modal */}
-{selectedImage && (
-  <div 
-    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 overflow-hidden"
-    onWheel={handleWheel}
-    onClick={() => {
-      setSelectedImage(null);
-      setScale(1);
-    }}
-  >
-    <div 
-      className="relative max-w-5xl w-full max-h-[90vh] flex items-center justify-center"
-      style={{ 
-        transform: `scale(${scale})`,
-        transformOrigin: scale > 1 ? transformOrigin : 'center',
-        // ONLY transition the transform (scale), not the origin. 
-        // This stops the "teleporting" jump.
-        transition: 'transform 0.15s ease-out' 
-      }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <button 
-        className="fixed top-6 right-6 text-white/70 hover:text-white text-lg flex items-center gap-2 transition-colors z-[110]"
-        onClick={() => {
-          setSelectedImage(null);
-          setScale(1);
-        }}
-      >
-        <span>Close</span>
-        <span className="text-2xl">×</span>
-      </button>
+{/* --- REFRESHED ZOOM MODAL --- */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 overflow-hidden touch-none"
+          onWheel={handleWheel}
+          onClick={() => {
+            setSelectedImage(null);
+            setScale(1);
+            setPosition({ x: 0, y: 0 });
+          }}
+        >
+          {/* Close Button */}
+          <button 
+            className="fixed top-8 right-8 text-white/50 hover:text-white text-lg flex items-center gap-2 transition-all hover:scale-105 z-[110]"
+            onClick={() => {
+              setSelectedImage(null);
+              setScale(1);
+              setPosition({ x: 0, y: 0 });
+            }}
+          >
+            <span>Close</span>
+            <span className="text-3xl font-light">×</span>
+          </button>
 
-      <img 
-        src={selectedImage} 
-        // removed pointer-events-none so we can eventually add dragging
-        className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl border border-white/10"
-        alt="Zoomed Preview"
-        draggable="false"
-      />
+          {/* Image Container */}
+          <div 
+            className="relative flex items-center justify-center pointer-events-none"
+            style={{ 
+              // Combining translate and scale into one transform stops the jumping
+              transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+              transition: 'transform 0.1s ease-out',
+              transformOrigin: 'center' 
+            }}
+          >
+            <img 
+              src={selectedImage} 
+              className="max-w-[90vw] max-h-[85vh] object-contain rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/5"
+              alt="Zine Preview"
+              draggable="false"
+            />
+          </div>
+        </div>
+      )}
     </div>
-  </div>
-)}
-    </div>
-  )
+  );
 }
 
 export default App
