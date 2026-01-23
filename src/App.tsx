@@ -20,9 +20,15 @@ function App() {
 		  }, [selectedImage]);
 		
 		  const handleWheel = (e: React.WheelEvent) => {
-		    if (!selectedImage) return;
-		    // ... your handleWheel code
-		  };
+		  if (!selectedImage) return;
+		  
+		  // This prevents the page from scrolling while you zoom
+		  e.preventDefault(); 
+		
+		  const delta = e.deltaY > 0 ? -0.2 : 0.2;
+		  const newScale = Math.min(Math.max(scale + delta, 1), 4);
+		  setScale(newScale);
+		};
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white font-sans">
       {/* Hero Section */}
