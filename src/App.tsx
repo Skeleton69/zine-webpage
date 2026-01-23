@@ -168,6 +168,28 @@ function App() {
           </p>
         </div>
       </footer>
+		{/* INSERT MODAL HERE */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 cursor-zoom-out backdrop-blur-sm"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative max-w-5xl w-full max-h-[90vh] flex items-center justify-center animate-in fade-in zoom-in duration-300">
+            <button 
+              className="absolute -top-12 right-0 text-white/70 hover:text-white text-lg flex items-center gap-2 transition-colors"
+              onClick={() => setSelectedImage(null)}
+            >
+              <span>Close</span>
+              <span className="text-2xl">×</span>
+            </button>
+            <img 
+              src={selectedImage} 
+              className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl border border-white/10"
+              alt="Zoomed Preview"
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
