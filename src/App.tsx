@@ -4,6 +4,7 @@ import zine1 from './images/zine1.png';
 import zine2 from './images/zine2.png';
 import zine3 from './images/zine3.png';
 function App() {
+	const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white font-sans">
       {/* Hero Section */}
