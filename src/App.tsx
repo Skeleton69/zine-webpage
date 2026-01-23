@@ -4,18 +4,25 @@ import zine1 from './images/zine1.png';
 import zine2 from './images/zine2.png';
 import zine3 from './images/zine3.png';
 function App() {
-	const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
-	const [scale, setScale] = React.useState(1);
-
-	const handleWheel = (e: React.WheelEvent) => {
-  // Prevent zoom if image isn't open
-  if (!selectedImage) return;
-  
-  // Calculate new scale
-  const delta = e.deltaY > 0 ? -0.2 : 0.2;
-  const newScale = Math.min(Math.max(scale + delta, 1), 4); // Limit zoom between 1x and 4x
-  setScale(newScale);
-};
+		const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
+		  const [scale, setScale] = React.useState(1);
+		
+		  // --- ADD SCROLL LOCK HOOK HERE ---
+		  React.useEffect(() => {
+		    if (selectedImage) {
+		      document.body.style.overflow = 'hidden';
+		    } else {
+		      document.body.style.overflow = 'unset';
+		    }
+		    return () => {
+		      document.body.style.overflow = 'unset';
+		    };
+		  }, [selectedImage]);
+		
+		  const handleWheel = (e: React.WheelEvent) => {
+		    if (!selectedImage) return;
+		    // ... your handleWheel code
+		  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white font-sans">
       {/* Hero Section */}
