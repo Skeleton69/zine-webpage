@@ -250,40 +250,41 @@ const handleMouseUp = () => {
 {selectedImage && (
   <div 
     className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 overflow-hidden touch-none ${
-      scale > 1 ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-default'
+      scale > 1 ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-zoom-in'
     }`}
     onWheel={handleWheel}
     onMouseDown={handleMouseDown}
     onMouseMove={handleMouseMove}
     onMouseUp={handleMouseUp}
-    onMouseLeave={handleMouseUp} // Stops dragging if mouse leaves window
+    onMouseLeave={handleMouseUp}
     onClick={() => {
-      if (!isDragging) { // Only close if they didn't just finish a drag
+      // ONLY close if the user didn't move the mouse (a clean click)
+      if (!hasMoved) {
         setSelectedImage(null);
         setScale(1);
         setPosition({ x: 0, y: 0 });
       }
     }}
   >
-    {/* Close Button */}
+    {/* Close Button - needs e.stopPropagation so it doesn't trigger the background onClick */}
     <button 
-      className="fixed top-8 right-8 text-white/50 hover:text-white text-lg flex items-center gap-2 transition-all hover:scale-105 z-[110]"
+      className="fixed top-8 right-8 text-white/50 hover:text-white text-lg flex items-center gap-2 transition-all z-[110]"
       onClick={(e) => {
-        e.stopPropagation(); // Stop background click from firing
+        e.stopPropagation();
         setSelectedImage(null);
         setScale(1);
         setPosition({ x: 0, y: 0 });
       }}
     >
       <span>Close</span>
-      <span className="text-3xl font-light">×</span>
+      <span className="text-3xl">×</span>
     </button>
 
     <div 
       className="relative flex items-center justify-center pointer-events-none"
       style={{ 
         transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-        // Disable transition during dragging for instant response
+        // Disable transition during dragging for instant response, enable for zoom
         transition: isDragging ? 'none' : 'transform 0.15s ease-out',
         transformOrigin: 'center' 
       }}
