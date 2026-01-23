@@ -13,6 +13,7 @@ const [hasMoved, setHasMoved] = React.useState(false);
 const handleMouseDown = (e: React.MouseEvent) => {
   if (scale > 1) {
     setIsDragging(true);
+    setHasMoved(false); // Reset this on every new click
     setLastMousePos({ x: e.clientX, y: e.clientY });
   }
 };
@@ -20,11 +21,15 @@ const handleMouseDown = (e: React.MouseEvent) => {
 const handleMouseMove = (e: React.MouseEvent) => {
   if (!isDragging || scale <= 1) return;
 
-  // Calculate how far the mouse moved
+  // Calculate distance moved
   const deltaX = e.clientX - lastMousePos.x;
   const deltaY = e.clientY - lastMousePos.y;
 
-  // Update the image position
+  // IMPORTANT: If the mouse moves more than 3 pixels, it's a drag, not a click
+  if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+    setHasMoved(true);
+  }
+
   setPosition(prev => ({
     x: prev.x + deltaX,
     y: prev.y + deltaY
