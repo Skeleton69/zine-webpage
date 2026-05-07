@@ -1,2 +1,2 @@
 # What is this?
-A webpage dedicated to my zine that I made for a school project
+A vibecoded webpage related to my zine, generated mostly from a bolt.new fork named bolt.diy
